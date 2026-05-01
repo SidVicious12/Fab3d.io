@@ -7,6 +7,7 @@ import { RawCodeViewer } from '@/components/RawCodeViewer';
 import { SignUpModal } from '@/components/SignUpModal';
 import { useTextToCAD } from '@/hooks/useTextToCAD';
 import { useCredits } from '@/hooks/useCredits';
+import { useAuth } from '@/hooks/useAuth';
 import { EXAMPLE_PROMPTS } from '@/lib/prompts';
 
 const MAX_CHARS = 500;
@@ -17,7 +18,8 @@ export function TextToCAD() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { generate, scadCode, stlBuffer, isLoading, error, dimensions, reset } = useTextToCAD();
-  const { remaining, total, hasCredits, useCredit } = useCredits();
+  const { user } = useAuth();
+  const { remaining, total, hasCredits, useCredit } = useCredits(user?.id);
 
   const handleSubmit = async () => {
     if (!prompt.trim() || isLoading) return;
@@ -27,7 +29,7 @@ export function TextToCAD() {
       return;
     }
 
-    const consumed = useCredit();
+    const consumed = await useCredit(prompt.trim());
     if (!consumed) {
       setShowSignUp(true);
       return;
@@ -164,16 +166,18 @@ export function TextToCAD() {
             {/* Credit counter */}
             <div className="flex items-center justify-between bg-white/2 border border-white/5 rounded-lg px-4 py-2.5">
               <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {Array.from({ length: total }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        i < remaining ? 'bg-fab-cyan' : 'bg-white/10'
-                      }`}
-                    />
-                  ))}
-                </div>
+                {typeof total === 'number' && (
+                  <div className="flex gap-1">
+                    {Array.from({ length: total }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          i < remaining ? 'bg-fab-cyan' : 'bg-white/10'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
                 <span className="text-sm text-white/50">
                   <span className="text-white font-medium">{remaining}</span>
                   <span>/{total} free generations today</span>
