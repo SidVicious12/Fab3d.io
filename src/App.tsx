@@ -1,6 +1,8 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Landing } from '@/pages/Landing';
 import { TextToCAD } from '@/pages/TextToCAD';
+import { Pricing } from '@/pages/Pricing';
 
 function Footer() {
   return (
@@ -22,14 +24,19 @@ function Footer() {
 
 function App() {
   return (
-    <div className="min-h-screen bg-fab-navy text-white">
-      <Header />
-      <main>
-        <Landing />
-        <TextToCAD />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-fab-navy text-white">
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/text-to-cad" element={<TextToCAD />} />
+            <Route path="/pricing" element={<Pricing />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }
 
