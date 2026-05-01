@@ -66,12 +66,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Prompt too long (max 500 characters)' });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'OpenAI API key not configured' });
+    return res.status(500).json({ error: 'API key not configured' });
   }
 
-  const client = new OpenAI({ apiKey });
+  const client = new OpenAI({
+    apiKey,
+    baseURL: 'https://openrouter.ai/api/v1',
+    defaultHeaders: {
+      'HTTP-Referer': 'https://fab3d.io',
+      'X-Title': 'Fab3D',
+    },
+  });
 
   const userMessage = previousError
     ? `${previousError}\n\nPlease fix the code for this request: ${prompt}`
@@ -79,7 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'xiaomi/mimo-v2-pro',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMessage },
@@ -102,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ scadCode: cleaned });
   } catch (err) {
-    console.error('OpenAI error:', err);
+    console.error('API error:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
     return res.status(500).json({ error: `Generation failed: ${message}` });
   }
