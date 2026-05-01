@@ -1,8 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+import { Zap, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
-export function Header() {
+interface HeaderProps {
+  onOpenAuth: () => void;
+}
+
+export function Header({ onOpenAuth }: HeaderProps) {
   const location = useLocation();
+  const { user, loading, signOut } = useAuth();
 
   const linkClass = (path: string) =>
     `transition-colors ${location.pathname === path ? 'text-fab-cyan' : 'text-white/50 hover:text-white'}`;
@@ -26,12 +32,35 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button className="text-sm text-white/50 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">
-            Sign in
-          </button>
-          <button className="text-sm bg-fab-cyan/10 border border-fab-cyan/30 text-fab-cyan hover:bg-fab-cyan/20 transition-all px-4 py-1.5 rounded-md font-medium">
-            Get started
-          </button>
+          {loading ? (
+            <div className="w-20 h-8 bg-white/5 rounded-md animate-pulse" />
+          ) : user ? (
+            <>
+              <span className="text-sm text-white/60 truncate max-w-[160px]">{user.email}</span>
+              <button
+                onClick={signOut}
+                className="text-sm text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/5 flex items-center gap-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onOpenAuth}
+                className="text-sm text-white/50 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/5"
+              >
+                Sign in
+              </button>
+              <button
+                onClick={onOpenAuth}
+                className="text-sm bg-fab-cyan/10 border border-fab-cyan/30 text-fab-cyan hover:bg-fab-cyan/20 transition-all px-4 py-1.5 rounded-md font-medium"
+              >
+                Get started
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

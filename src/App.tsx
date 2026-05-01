@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Header } from '@/components/Header';
+import { SignUpModal } from '@/components/SignUpModal';
 import { Landing } from '@/pages/Landing';
 import { TextToCAD } from '@/pages/TextToCAD';
 import { Pricing } from '@/pages/Pricing';
@@ -23,10 +25,13 @@ function Footer() {
 }
 
 function App() {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-fab-navy text-white">
-        <Header />
+        <Header onOpenAuth={() => setAuthModalOpen(true)} />
+        <SignUpModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
         <main>
           <Routes>
             <Route path="/" element={<Landing />} />
